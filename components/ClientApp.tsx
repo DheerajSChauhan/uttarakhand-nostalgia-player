@@ -6,6 +6,7 @@ import { Playlist } from "@/lib/types";
 import { TopBar } from "./TopBar";
 import { MusicPlayer } from "./MusicPlayer";
 import { useLiveListeners } from "@/lib/useLiveListeners";
+import { trackPlaylistChange } from "@/lib/analytics";
 
 export function ClientApp() {
   const [playlists] = useState<Playlist[]>(PLAYLISTS);
