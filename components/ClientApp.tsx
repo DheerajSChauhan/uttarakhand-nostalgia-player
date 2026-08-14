@@ -5,11 +5,12 @@ import { PLAYLISTS } from "@/lib/tracks";
 import { Playlist } from "@/lib/types";
 import { TopBar } from "./TopBar";
 import { MusicPlayer } from "./MusicPlayer";
-import { trackPlaylistChange } from "@/lib/analytics";
+import { useLiveListeners } from "@/lib/useLiveListeners";
 
 export function ClientApp() {
   const [playlists] = useState<Playlist[]>(PLAYLISTS);
   const [currentPlaylist, setCurrentPlaylist] = useState<Playlist>(PLAYLISTS[0]);
+  const liveCount = useLiveListeners();
 
   const handleSelectPlaylist = (playlist: Playlist) => {
     setCurrentPlaylist(playlist);
@@ -23,7 +24,7 @@ export function ClientApp() {
         playlists={playlists}
         currentPlaylist={currentPlaylist}
         onSelectPlaylist={handleSelectPlaylist}
-        listenerCount={42}
+        listenerCount={liveCount}
       />
 
       {/* Center Mountain Ambient Tagline */}
