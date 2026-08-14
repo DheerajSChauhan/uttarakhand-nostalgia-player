@@ -12,9 +12,9 @@ export const PLAYLISTS: Playlist[] = [
   },
   {
     id: "garhwali-nostalgia",
-    name: "Uttarakhand Garhwali Songs",
-    tagline: "Soulful folk songs and classic Garhwali melodies from the hills",
-    description: "Authentic Garhwali folk rhythms, Dhol-Damau beats, and timeless Himalayan nostalgia.",
+    name: "Most viewed Uttarakhandi songs",
+    tagline: "Top hits, soulful folk songs, and classic melodies from the hills",
+    description: "Authentic Uttarakhandi folk rhythms, iconic anthems, and timeless Himalayan nostalgia.",
     source: "youtube-playlist",
     youtubePlaylistId: "PLMzZ6O7pRV98",
     tracks: [],
