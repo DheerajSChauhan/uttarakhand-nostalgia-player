@@ -26,6 +26,11 @@ export const metadata: Metadata = {
     "Devbhoomi",
     "Bolero Taxi Music",
   ],
+  icons: {
+    icon: "/icon.png",
+    shortcut: "/favicon.ico",
+    apple: "/icon.png",
+  },
   openGraph: {
     title: "Pahadi Radio — Devbhoomi Nostalgia",
     description:
