@@ -1,4 +1,4 @@
-# 🏔️ Devbhoomi Nostalgia Player (देवभूमि Airwaves)
+# 🏔️ Devbhoomi Nostalgia Player (देवभूमि Radio)
 
 A single-page nostalgia music web experience built with **Next.js (App Router)**, **Tailwind CSS v4**, and the **YouTube IFrame Player API**.
 

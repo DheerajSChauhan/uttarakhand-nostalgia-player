@@ -348,7 +348,7 @@ export function MusicPlayer({ playlist }: MusicPlayerProps) {
     ? {
         id: `yt-live-${trackIndex}`,
         title: liveYtMeta.title || playlist.name,
-        artist: liveYtMeta.artist || "Devbhoomi Airwaves",
+        artist: liveYtMeta.artist || "Devbhoomi Radio",
         duration: duration || 240,
         videoId: liveYtMeta.videoId || playlist.youtubePlaylistId || "",
       }

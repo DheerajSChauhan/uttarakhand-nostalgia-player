@@ -35,7 +35,7 @@ export function ClientApp() {
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)] font-sans">
-            देवभूमि Airwaves
+            देवभूमि Radio
           </h1>
 
           <p className="text-xs sm:text-sm text-white/80 max-w-sm sm:max-w-md mx-auto leading-relaxed drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">

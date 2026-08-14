@@ -35,7 +35,7 @@ export function TopBar({
             <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
           </span>
           <span className="text-[11px] font-semibold uppercase tracking-wider text-white/90">
-            Devbhoomi Airwaves
+            Devbhoomi Radio
           </span>
           <span className="text-white/30">•</span>
           <span className="text-[11px] font-mono text-amber-300/90 font-medium">
@@ -104,7 +104,7 @@ export function TopBar({
                   <p className="text-[10px] uppercase font-bold tracking-widest text-amber-400">
                     Radio Frequency
                   </p>
-                  <p className="text-[11px] text-white/60">Live Mountain Airwaves</p>
+                  <p className="text-[11px] text-white/60">Live Mountain Radio</p>
                 </div>
                 <div className="mt-1 space-y-1">
                   {playlists.map((playlist) => {

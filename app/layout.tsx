@@ -15,7 +15,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://nostalgia-music-player.vercel.app"),
-  title: "Pahadi Radio — Nostalgic Mountain Melodies (देवभूमि Airwaves)",
+  title: "Pahadi Radio — Nostalgic Mountain Melodies (देवभूमि Radio)",
   description:
     "A nostalgic single-page music voyage through the serpentine pine roads of Uttarakhand. Live IST clock, floating glass vinyl player, and curated mountain melodies.",
   keywords: [
