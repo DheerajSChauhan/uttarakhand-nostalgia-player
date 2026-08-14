@@ -28,7 +28,7 @@ function formatTime(seconds: number): string {
 const SpindleHole = memo(function SpindleHole() {
   return (
     <div
-      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-black/80 ring-2 ring-white/40 pointer-events-none z-20 shadow-sm"
+      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-black/90 ring-2 ring-white/50 pointer-events-none z-20 shadow-sm"
       aria-hidden="true"
     />
   );
@@ -37,7 +37,7 @@ const SpindleHole = memo(function SpindleHole() {
 const VinylGrooves = memo(function VinylGrooves() {
   return (
     <div
-      className="absolute inset-0 rounded-full vinyl-grooves opacity-60 pointer-events-none z-10"
+      className="absolute inset-0 rounded-full vinyl-grooves opacity-70 pointer-events-none z-10"
       aria-hidden="true"
     />
   );
@@ -47,27 +47,21 @@ interface VinylSlotProps {
   size: "desktop" | "mobile";
   isPlaying: boolean;
   artistName: string;
-  mountId: string;
-  isExpanded: boolean;
-  onToggleExpand: () => void;
 }
 
 const VinylArtwork = memo(function VinylArtwork({
   size,
   isPlaying,
   artistName,
-  mountId,
-  isExpanded,
-  onToggleExpand,
 }: VinylSlotProps) {
   const dimensionClass = size === "desktop" ? "w-20 h-20" : "w-16 h-16";
 
   return (
-    <div className="relative group flex-shrink-0">
+    <div className="relative group flex-shrink-0 select-none">
       <div
-        className={`${dimensionClass} relative rounded-full overflow-hidden border border-white/15 bg-neutral-900 shadow-xl flex items-center justify-center transition-transform active:scale-95`}
+        className={`${dimensionClass} relative rounded-full overflow-hidden border border-white/15 bg-neutral-950 shadow-xl flex items-center justify-center transition-transform active:scale-95`}
         style={{
-          boxShadow: "0 8px 24px -4px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.2)",
+          boxShadow: "0 8px 24px -4px rgba(0,0,0,0.8), inset 0 1px 1px rgba(255,255,255,0.2)",
         }}
       >
         <div
@@ -78,20 +72,17 @@ const VinylArtwork = memo(function VinylArtwork({
             animationPlayState: isPlaying ? "running" : "paused",
           }}
         >
-          <VinylGrooves />
-
-          {/* Visibly Rendered YouTube Video Mount */}
+          {/* Cover Art Artwork Image */}
           <div
-            id={mountId}
-            className="w-full h-full absolute inset-0 object-cover rounded-full overflow-hidden"
-            style={{
-              clipPath: "circle(50% at 50% 50%)",
-            }}
+            className="absolute inset-0 bg-cover bg-center opacity-85 scale-110"
+            style={{ backgroundImage: "url('/bg/scene-wide.png')" }}
           />
 
+          <VinylGrooves />
+
           {/* Center Vinyl Record Label */}
-          <div className="absolute inset-[24%] rounded-full bg-gradient-to-tr from-amber-600/80 via-amber-500/80 to-amber-700/80 border border-white/30 flex items-center justify-center pointer-events-none z-10">
-            <span className="text-[7px] font-mono font-bold tracking-tighter text-black/90 uppercase text-center px-1 truncate">
+          <div className="absolute inset-[24%] rounded-full bg-gradient-to-tr from-amber-600/90 via-amber-500/90 to-amber-700/90 border border-white/40 flex items-center justify-center pointer-events-none z-10 shadow-inner">
+            <span className="text-[7.5px] font-mono font-bold tracking-tighter text-black/90 uppercase text-center px-1 truncate">
               {(artistName || "Devbhoomi").slice(0, 10)}
             </span>
           </div>
@@ -99,27 +90,6 @@ const VinylArtwork = memo(function VinylArtwork({
           <SpindleHole />
         </div>
       </div>
-
-      <button
-        type="button"
-        onClick={onToggleExpand}
-        className="absolute -bottom-1 -right-1 z-30 p-1 rounded-full bg-black/80 hover:bg-black text-white/80 hover:text-amber-400 border border-white/20 shadow-md opacity-0 group-hover:opacity-100 transition-opacity text-[10px]"
-        title={isExpanded ? "Minimize video screen" : "Expand video screen"}
-        aria-label="Toggle screen size"
-      >
-        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d={
-              isExpanded
-                ? "M6 18L18 6M6 6l12 12"
-                : "M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
-            }
-          />
-        </svg>
-      </button>
     </div>
   );
 });
@@ -216,7 +186,6 @@ interface TrackInfoProps {
   film?: string;
   year?: string | number;
   isBuffering?: boolean;
-  badge?: string;
 }
 
 const TrackInfo = memo(function TrackInfo({
@@ -225,7 +194,6 @@ const TrackInfo = memo(function TrackInfo({
   film,
   year,
   isBuffering,
-  badge,
 }: TrackInfoProps) {
   return (
     <div className="flex flex-col min-w-0 flex-1">
@@ -233,11 +201,6 @@ const TrackInfo = memo(function TrackInfo({
         <h2 className="text-[15px] font-semibold text-white tracking-tight truncate">
           {title}
         </h2>
-        {badge && (
-          <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono flex-shrink-0">
-            {badge}
-          </span>
-        )}
         {isBuffering && (
           <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping flex-shrink-0" />
         )}
@@ -370,7 +333,6 @@ export function MusicPlayer({ playlist }: MusicPlayerProps) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
 
   // Live metadata extracted dynamically from YouTube queue
   const [liveYtMeta, setLiveYtMeta] = useState<{ title: string; artist: string; videoId?: string }>({
@@ -386,7 +348,7 @@ export function MusicPlayer({ playlist }: MusicPlayerProps) {
     ? {
         id: `yt-live-${trackIndex}`,
         title: liveYtMeta.title || playlist.name,
-        artist: liveYtMeta.artist || "YouTube Queue",
+        artist: liveYtMeta.artist || "Devbhoomi Airwaves",
         duration: duration || 240,
         videoId: liveYtMeta.videoId || playlist.youtubePlaylistId || "",
       }
@@ -409,7 +371,7 @@ export function MusicPlayer({ playlist }: MusicPlayerProps) {
         if (data && data.title) {
           setLiveYtMeta({
             title: data.title,
-            artist: data.author || "YouTube Channel",
+            artist: data.author || "Uttarakhand Melodies",
             videoId: data.video_id,
           });
         }
@@ -647,19 +609,20 @@ export function MusicPlayer({ playlist }: MusicPlayerProps) {
 
   const displayTitle = isDirectYtPlaylist ? liveYtMeta.title : currentTrack.title;
   const displayArtist = isDirectYtPlaylist ? liveYtMeta.artist : currentTrack.artist;
-  const badgeLabel = isDirectYtPlaylist ? "YouTube Live Queue" : undefined;
 
   return (
     <>
+      {/* Hidden YouTube Engine Mount (Plays Audio seamlessly without showing video) */}
+      <div className="sr-only pointer-events-none absolute -left-[9999px] top-0 h-1 w-1 overflow-hidden" aria-hidden="true">
+        <div id={mountId} />
+      </div>
+
       {/* Desktop Layout: Horizontal Pill */}
       <div className="hidden sm:flex items-center gap-4 w-full max-w-xl rounded-full p-3 pr-5 glass-panel transition-all duration-300">
         <VinylArtwork
           size="desktop"
           isPlaying={isPlaying}
           artistName={displayArtist}
-          mountId={mountId}
-          isExpanded={isExpanded}
-          onToggleExpand={() => setIsExpanded(!isExpanded)}
         />
 
         <div className="flex flex-col flex-1 min-w-0 justify-center gap-0.5">
@@ -670,7 +633,6 @@ export function MusicPlayer({ playlist }: MusicPlayerProps) {
               film={currentTrack.film}
               year={currentTrack.year}
               isBuffering={isBuffering}
-              badge={badgeLabel}
             />
             <TimeStamp currentTime={currentTime} duration={duration} />
           </div>
@@ -696,9 +658,6 @@ export function MusicPlayer({ playlist }: MusicPlayerProps) {
             size="mobile"
             isPlaying={isPlaying}
             artistName={displayArtist}
-            mountId={mountId}
-            isExpanded={isExpanded}
-            onToggleExpand={() => setIsExpanded(!isExpanded)}
           />
           <TrackInfo
             title={displayTitle}
@@ -706,7 +665,6 @@ export function MusicPlayer({ playlist }: MusicPlayerProps) {
             film={currentTrack.film}
             year={currentTrack.year}
             isBuffering={isBuffering}
-            badge={badgeLabel}
           />
         </div>
 
@@ -728,65 +686,8 @@ export function MusicPlayer({ playlist }: MusicPlayerProps) {
               isMobile={true}
             />
           </div>
-
-          <button
-            type="button"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="min-w-[40px] min-h-[40px] flex items-center justify-center p-2 rounded-full text-white/60 hover:text-amber-400 active:scale-95"
-            aria-label="Toggle full video"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d={
-                  isExpanded
-                    ? "M6 18L18 6M6 6l12 12"
-                    : "M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-                }
-              />
-            </svg>
-          </button>
         </div>
       </div>
-
-      {/* Expanded Theater Screen */}
-      {isExpanded && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xl animate-in fade-in duration-200">
-          <div className="glass-panel w-full max-w-2xl rounded-3xl p-5 border border-white/20 shadow-2xl relative">
-            <div className="flex items-center justify-between mb-3">
-              <div className="min-w-0 pr-4">
-                <p className="text-[10px] font-mono uppercase tracking-widest text-amber-400">
-                  Live Stream Video
-                </p>
-                <h3 className="text-sm font-semibold text-white truncate">{displayTitle}</h3>
-                <p className="text-xs text-white/60 truncate">{displayArtist}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsExpanded(false)}
-                className="p-2 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-all"
-                aria-label="Close theater mode"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <div className="w-full aspect-video rounded-2xl overflow-hidden bg-black/80 border border-white/10 shadow-inner relative flex items-center justify-center">
-              <iframe
-                src={`https://www.youtube.com/embed/${currentTrack.videoId || (playlist.youtubePlaylistId ? `videoseries?list=${playlist.youtubePlaylistId}` : "")}?autoplay=1&enablejsapi=1&rel=0&modestbranding=1`}
-                title={displayTitle}
-                className="w-full h-full border-0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
