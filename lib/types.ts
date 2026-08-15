@@ -17,5 +17,7 @@ export interface Playlist {
   tagline: string;
   source?: PlaylistSource;
   youtubePlaylistId?: string;
+  bgWide?: string;
+  bgTall?: string;
   tracks: Track[];
 }

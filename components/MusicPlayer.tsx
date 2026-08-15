@@ -47,12 +47,14 @@ interface VinylSlotProps {
   size: "desktop" | "mobile";
   isPlaying: boolean;
   artistName: string;
+  coverImage?: string;
 }
 
 const VinylArtwork = memo(function VinylArtwork({
   size,
   isPlaying,
   artistName,
+  coverImage = "/bg/scene-wide.png",
 }: VinylSlotProps) {
   const dimensionClass = size === "desktop" ? "w-20 h-20" : "w-16 h-16";
 
@@ -74,8 +76,8 @@ const VinylArtwork = memo(function VinylArtwork({
         >
           {/* Cover Art Artwork Image */}
           <div
-            className="absolute inset-0 bg-cover bg-center opacity-85 scale-110"
-            style={{ backgroundImage: "url('/bg/scene-wide.png')" }}
+            className="absolute inset-0 bg-cover bg-center opacity-85 scale-110 transition-all duration-700"
+            style={{ backgroundImage: `url('${coverImage}')` }}
           />
 
           <VinylGrooves />
@@ -639,6 +641,7 @@ export function MusicPlayer({ playlist }: MusicPlayerProps) {
           size="desktop"
           isPlaying={isPlaying}
           artistName={displayArtist}
+          coverImage={playlist.bgWide || "/bg/scene-wide.png"}
         />
 
         <div className="flex flex-col flex-1 min-w-0 justify-center gap-0.5">
@@ -674,6 +677,7 @@ export function MusicPlayer({ playlist }: MusicPlayerProps) {
             size="mobile"
             isPlaying={isPlaying}
             artistName={displayArtist}
+            coverImage={playlist.bgWide || "/bg/scene-wide.png"}
           />
           <TrackInfo
             title={displayTitle}

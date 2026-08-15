@@ -5,6 +5,7 @@ import { PLAYLISTS } from "@/lib/tracks";
 import { Playlist } from "@/lib/types";
 import { TopBar } from "./TopBar";
 import { MusicPlayer } from "./MusicPlayer";
+import { BackgroundScene } from "./BackgroundScene";
 import { useLiveListeners } from "@/lib/useLiveListeners";
 import { trackPlaylistChange } from "@/lib/analytics";
 
@@ -20,6 +21,12 @@ export function ClientApp() {
 
   return (
     <>
+      {/* Smooth Crossfading Scenic Mountain Background Layers */}
+      <BackgroundScene
+        playlists={playlists}
+        currentPlaylistId={currentPlaylist.id}
+      />
+
       {/* Fixed Top Row */}
       <TopBar
         playlists={playlists}
