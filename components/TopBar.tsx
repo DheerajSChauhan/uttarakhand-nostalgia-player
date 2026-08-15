@@ -106,7 +106,7 @@ export function TopBar({
                   </p>
                   <p className="text-[11px] text-white/60">Live Mountain Radio</p>
                 </div>
-                <div className="mt-1 space-y-1">
+                <div className="mt-1 space-y-1.5">
                   {playlists.map((playlist) => {
                     const isSelected = playlist.id === currentPlaylist.id;
 
@@ -118,20 +118,20 @@ export function TopBar({
                           if (onSelectPlaylist) onSelectPlaylist(playlist);
                           setShowPlaylistMenu(false);
                         }}
-                        className={`w-full text-left px-3 py-2.5 rounded-xl transition-all flex items-start gap-2.5 ${
+                        className={`w-full text-left px-3.5 py-3 rounded-xl transition-all flex items-start gap-3 active:scale-[0.98] ${
                           isSelected
                             ? "bg-amber-500/20 text-white border border-amber-500/40"
-                            : "text-white/80 hover:bg-white/10 hover:text-white"
+                            : "text-white/80 hover:bg-white/10 active:bg-white/15 hover:text-white"
                         }`}
                       >
                         <div
-                          className={`mt-0.5 w-2 h-2 rounded-full flex-shrink-0 ${
-                            isSelected ? "bg-amber-400 animate-pulse" : "bg-white/20"
+                          className={`mt-1 w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                            isSelected ? "bg-amber-400 animate-pulse ring-2 ring-amber-400/40" : "bg-white/20"
                           }`}
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium truncate">{playlist.name}</p>
-                          <p className="text-[10px] text-white/50 line-clamp-1">
+                          <p className="text-xs font-semibold truncate">{playlist.name}</p>
+                          <p className="text-[10.5px] text-white/60 line-clamp-1 mt-0.5">
                             {playlist.tagline}
                           </p>
                         </div>
