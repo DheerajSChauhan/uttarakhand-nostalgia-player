@@ -211,7 +211,7 @@ export function TopBar({
               </div>
               <div className="flex justify-between">
                 <span>Playlist:</span>
-                <span className="text-white/90 truncate max-w-[180px]">PLAjHrQ1Nk_uM</span>
+                <span className="text-white/90 truncate max-w-[180px]">{currentPlaylist.youtubePlaylistId || "Live"}</span>
               </div>
               <div className="flex justify-between">
                 <span>Timezone:</span>
