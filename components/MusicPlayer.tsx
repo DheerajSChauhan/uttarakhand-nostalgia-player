@@ -325,8 +325,6 @@ interface MusicPlayerProps {
 }
 
 export function MusicPlayer({ playlist }: MusicPlayerProps) {
-  const isDirectYtPlaylist = playlist.source === "youtube-playlist";
-
   const [trackIndex, setTrackIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isBuffering, setIsBuffering] = useState(false);
@@ -341,10 +339,14 @@ export function MusicPlayer({ playlist }: MusicPlayerProps) {
   });
 
   const playerRef = useRef<any>(null);
-  const isApiLoadedRef = useRef(false);
+  const isPlayerReadyRef = useRef(false);
+  const playlistRef = useRef<Playlist>(playlist);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const currentTrack: Track = isDirectYtPlaylist
+  // Keep latest playlist in ref for async callbacks
+  playlistRef.current = playlist;
+
+  const currentTrack: Track = playlist.source === "youtube-playlist"
     ? {
         id: `yt-live-${trackIndex}`,
         title: liveYtMeta.title || playlist.name,
@@ -371,13 +373,15 @@ export function MusicPlayer({ playlist }: MusicPlayerProps) {
         if (data && data.title) {
           setLiveYtMeta({
             title: data.title,
-            artist: data.author || "Uttarakhand Melodies",
+            artist: data.author || playlistRef.current.name,
             videoId: data.video_id,
           });
         }
       }
       const dur = playerRef.current.getDuration();
-      if (dur && dur > 0) setDuration(dur);
+      if (dur && dur > 0) {
+        setDuration(dur);
+      }
     } catch (e) {
       console.debug("Could not sync metadata", e);
     }
@@ -385,16 +389,16 @@ export function MusicPlayer({ playlist }: MusicPlayerProps) {
 
   // Handle Next Track
   const handleNextTrack = useCallback(() => {
-    if (isDirectYtPlaylist && playerRef.current && typeof playerRef.current.nextVideo === "function") {
+    if (playlistRef.current.source === "youtube-playlist" && playerRef.current && typeof playerRef.current.nextVideo === "function") {
       playerRef.current.nextVideo();
-      setTimeout(syncLiveMetadata, 600);
+      setTimeout(syncLiveMetadata, 400);
       return;
     }
 
-    if (playlist.tracks.length > 0) {
+    if (playlistRef.current.tracks.length > 0) {
       setTrackIndex((prev) => {
-        const nextIndex = (prev + 1) % playlist.tracks.length;
-        const nextTrack = playlist.tracks[nextIndex];
+        const nextIndex = (prev + 1) % playlistRef.current.tracks.length;
+        const nextTrack = playlistRef.current.tracks[nextIndex];
         setCurrentTime(0);
         setDuration(nextTrack.duration || 180);
 
@@ -405,20 +409,20 @@ export function MusicPlayer({ playlist }: MusicPlayerProps) {
         return nextIndex;
       });
     }
-  }, [isDirectYtPlaylist, playlist.tracks, syncLiveMetadata]);
+  }, [syncLiveMetadata]);
 
   // Handle Prev Track
   const handlePrevTrack = useCallback(() => {
-    if (isDirectYtPlaylist && playerRef.current && typeof playerRef.current.previousVideo === "function") {
+    if (playlistRef.current.source === "youtube-playlist" && playerRef.current && typeof playerRef.current.previousVideo === "function") {
       playerRef.current.previousVideo();
-      setTimeout(syncLiveMetadata, 600);
+      setTimeout(syncLiveMetadata, 400);
       return;
     }
 
-    if (playlist.tracks.length > 0) {
+    if (playlistRef.current.tracks.length > 0) {
       setTrackIndex((prev) => {
-        const prevIndex = (prev - 1 + playlist.tracks.length) % playlist.tracks.length;
-        const targetTrack = playlist.tracks[prevIndex];
+        const prevIndex = (prev - 1 + playlistRef.current.tracks.length) % playlistRef.current.tracks.length;
+        const targetTrack = playlistRef.current.tracks[prevIndex];
         setCurrentTime(0);
         setDuration(targetTrack.duration || 180);
 
@@ -429,14 +433,17 @@ export function MusicPlayer({ playlist }: MusicPlayerProps) {
         return prevIndex;
       });
     }
-  }, [isDirectYtPlaylist, playlist.tracks, syncLiveMetadata]);
+  }, [syncLiveMetadata]);
 
   // Initialize YT Player Instance
   const initPlayer = useCallback(() => {
     if (!window.YT || !window.YT.Player) return;
 
     try {
-      const config: any = {
+      const activePlaylist = playlistRef.current;
+      playerRef.current = new window.YT.Player(mountId, {
+        height: "200",
+        width: "200",
         playerVars: {
           autoplay: 0,
           controls: 0,
@@ -450,15 +457,18 @@ export function MusicPlayer({ playlist }: MusicPlayerProps) {
         },
         events: {
           onReady: (event: any) => {
-            if (isDirectYtPlaylist && playlist.youtubePlaylistId) {
+            isPlayerReadyRef.current = true;
+            if (activePlaylist.source === "youtube-playlist" && activePlaylist.youtubePlaylistId) {
               event.target.cuePlaylist({
-                list: playlist.youtubePlaylistId,
+                list: activePlaylist.youtubePlaylistId,
                 listType: "playlist",
+                index: 0,
               });
             }
             syncLiveMetadata();
           },
           onStateChange: (event: any) => {
+            // 1: PLAYING, 2: PAUSED, 0: ENDED, 3: BUFFERING, 5: CUED, -1: UNSTARTED
             if (event.data === 1) {
               setIsPlaying(true);
               setIsBuffering(false);
@@ -470,57 +480,27 @@ export function MusicPlayer({ playlist }: MusicPlayerProps) {
               handleNextTrack();
             } else if (event.data === 3) {
               setIsBuffering(true);
+              syncLiveMetadata();
+            } else if (event.data === 5 || event.data === -1) {
+              syncLiveMetadata();
             }
           },
           onError: (event: any) => {
-            trackPlayerError(event.data, currentTrack.videoId, currentTrack.title);
+            trackPlayerError(event.data, activePlaylist.youtubePlaylistId || "error", activePlaylist.name);
             handleNextTrack();
           },
         },
-      };
-
-      if (isDirectYtPlaylist && playlist.youtubePlaylistId) {
-        config.playerVars.listType = "playlist";
-        config.playerVars.list = playlist.youtubePlaylistId;
-      } else if (currentTrack.videoId) {
-        config.videoId = currentTrack.videoId;
-      }
-
-      playerRef.current = new window.YT.Player(mountId, config);
+      });
     } catch (err) {
       console.error("YT Player init error:", err);
     }
-  }, [isDirectYtPlaylist, playlist.youtubePlaylistId, currentTrack.videoId, currentTrack.title, syncLiveMetadata, handleNextTrack]);
+  }, [syncLiveMetadata, handleNextTrack]);
 
-  // Playlist change effect
-  useEffect(() => {
-    setTrackIndex(0);
-    setCurrentTime(0);
-
-    if (isDirectYtPlaylist && playlist.youtubePlaylistId) {
-      setLiveYtMeta({ title: playlist.name, artist: playlist.tagline });
-      if (playerRef.current && typeof playerRef.current.loadPlaylist === "function") {
-        playerRef.current.loadPlaylist({
-          list: playlist.youtubePlaylistId,
-          listType: "playlist",
-          index: 0,
-        });
-      }
-    } else if (playlist.tracks.length > 0) {
-      setDuration(playlist.tracks[0]?.duration || 180);
-      if (playerRef.current && typeof playerRef.current.loadVideoById === "function") {
-        playerRef.current.loadVideoById(playlist.tracks[0]?.videoId);
-        trackSongPlay(playlist.tracks[0]);
-      }
-    }
-  }, [playlist, isDirectYtPlaylist]);
-
-  // Load YouTube IFrame API
+  // Load YouTube IFrame API on mount
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const onYouTubeReady = () => {
-      isApiLoadedRef.current = true;
       if (document.getElementById(mountId) && !playerRef.current) {
         initPlayer();
       }
@@ -543,7 +523,40 @@ export function MusicPlayer({ playlist }: MusicPlayerProps) {
     };
   }, [initPlayer]);
 
-  // Progress polling
+  // Handle Playlist Switch Immediately and Smoothly
+  useEffect(() => {
+    setTrackIndex(0);
+    setCurrentTime(0);
+    setLiveYtMeta({ title: playlist.name, artist: playlist.tagline });
+
+    if (playerRef.current && isPlayerReadyRef.current) {
+      if (playlist.source === "youtube-playlist" && playlist.youtubePlaylistId) {
+        try {
+          playerRef.current.loadPlaylist({
+            list: playlist.youtubePlaylistId,
+            listType: "playlist",
+            index: 0,
+            startSeconds: 0,
+          });
+          setIsPlaying(true);
+          setTimeout(syncLiveMetadata, 400);
+        } catch (e) {
+          console.error("Failed to load playlist:", e);
+        }
+      } else if (playlist.tracks.length > 0) {
+        setDuration(playlist.tracks[0]?.duration || 180);
+        try {
+          playerRef.current.loadVideoById(playlist.tracks[0]?.videoId);
+          setIsPlaying(true);
+          trackSongPlay(playlist.tracks[0]);
+        } catch (e) {
+          console.error("Failed to load video:", e);
+        }
+      }
+    }
+  }, [playlist, syncLiveMetadata]);
+
+  // Progress polling during playback
   useEffect(() => {
     if (isPlaying) {
       progressIntervalRef.current = setInterval(() => {
@@ -583,11 +596,25 @@ export function MusicPlayer({ playlist }: MusicPlayerProps) {
       playerRef.current.pauseVideo();
       setIsPlaying(false);
     } else {
-      playerRef.current.playVideo();
+      if (playlist.source === "youtube-playlist" && playlist.youtubePlaylistId) {
+        const state = playerRef.current.getPlayerState?.();
+        if (state === -1 || state === 5 || state === undefined) {
+          playerRef.current.loadPlaylist({
+            list: playlist.youtubePlaylistId,
+            listType: "playlist",
+            index: 0,
+            startSeconds: 0,
+          });
+        } else {
+          playerRef.current.playVideo();
+        }
+      } else {
+        playerRef.current.playVideo();
+      }
       setIsPlaying(true);
       trackSongPlay(currentTrack);
     }
-  }, [isPlaying, currentTrack, initPlayer]);
+  }, [isPlaying, currentTrack, playlist, initPlayer]);
 
   const handleSeek = useCallback((time: number) => {
     setCurrentTime(time);
@@ -607,13 +634,16 @@ export function MusicPlayer({ playlist }: MusicPlayerProps) {
     }
   }, [isMuted]);
 
-  const displayTitle = isDirectYtPlaylist ? liveYtMeta.title : currentTrack.title;
-  const displayArtist = isDirectYtPlaylist ? liveYtMeta.artist : currentTrack.artist;
+  const displayTitle = playlist.source === "youtube-playlist" ? liveYtMeta.title : currentTrack.title;
+  const displayArtist = playlist.source === "youtube-playlist" ? liveYtMeta.artist : currentTrack.artist;
 
   return (
     <>
-      {/* Hidden YouTube Engine Mount (Plays Audio seamlessly without showing video) */}
-      <div className="sr-only pointer-events-none absolute -left-[9999px] top-0 h-1 w-1 overflow-hidden" aria-hidden="true">
+      {/* Active YouTube Audio Engine Mount (Rendered behind player without viewport throttling) */}
+      <div
+        className="fixed bottom-0 left-0 w-[200px] h-[200px] -z-50 opacity-0 pointer-events-none overflow-hidden"
+        aria-hidden="true"
+      >
         <div id={mountId} />
       </div>
 
